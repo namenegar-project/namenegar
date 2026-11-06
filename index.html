@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>نام‌نگار | NameNegar — Your Name in English</title>
+<style>
+:root{--green:#174b3a;--mint:#eaf3ee;--ink:#20312a;--muted:#68766f;--line:#dce7e0}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f8f6;color:var(--ink);font-family:Tahoma,Arial,sans-serif;line-height:1.9}
+.wrap{max-width:760px;margin:30px auto;padding:0 16px}
+.hero{background:var(--green);color:#fff;border-radius:22px;padding:28px 24px;margin-bottom:20px;text-align:center}
+.hero h1{direction:ltr;font-family:Arial,sans-serif;font-size:30px;line-height:1.3;margin:0 0 12px}
+.hero p{font-size:18px;margin:0;color:#e3eee8}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;margin:18px 0;box-shadow:0 5px 20px #163d2b0a}
+h2{font-size:21px;color:var(--green);margin:0 0 16px}
+label{display:block;font-weight:bold;margin:15px 0 6px}
+input,select,textarea{width:100%;padding:14px;border:1px solid #cbd9d0;border-radius:12px;font:inherit;background:#fff;color:var(--ink);font-size:16px}
+input[dir=ltr]{text-align:left}
+input::placeholder,textarea::placeholder{color:#929b96}
+.hint,.small{font-size:14px;color:var(--muted);margin:10px 0}
+button{border:0;border-radius:12px;padding:13px 22px;background:var(--green);color:#fff;font:inherit;font-weight:bold;font-size:16px;cursor:pointer;margin-top:14px}
+button.secondary{background:var(--mint);color:var(--green);border:1px solid var(--line)}
+.results{display:grid;gap:10px;margin-top:16px}
+.option{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);padding:13px 15px;border-radius:12px}
+.option strong{direction:ltr;unicode-bidi:embed;font: bold 19px Arial,sans-serif}
+.tag{font-size:12px;color:var(--green);background:var(--mint);padding:3px 9px;border-radius:30px}
+.status{margin-top:12px;color:var(--green);font-size:14px}
+.actions{display:flex;justify-content:flex-start}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+@media(max-width:560px){.wrap{margin:16px auto}.hero{padding:25px 18px}.card{padding:19px}.hero h1{font-size:27px}.option{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<h1>NameNegar</h1>
+<p>نام‌نگار | تبدیل نوشتار نام و نام خانوادگی به انگلیسی</p>
+</header>
+
+<section class="card">
+<label for="fullName">نام و نام خانوادگی</label>
+<input id="fullName" placeholder="مثال: زهرا رنجبر" autocomplete="off">
+<p class="hint">جهت دریافت نتیجه‌ی دقیق و صحیح، حرکات کوتاه را وارد کنید: رَنجبَر</p>
+<div class="actions"><button id="convertBtn">دریافت پیشنهادات</button></div>
+<div id="results" class="results"></div>
+<div id="convertStatus" class="status" aria-live="polite"></div>
+</section>
+
+<section class="card">
+<h2>افزودن نام یا نام و نام خانوادگی</h2>
+<p class="small">چنانچه نام و نام خانوادگی شما در سیستم ثبت نشده است، لطفاً نام خود و املای پیشنهادی خود را وارد کنید.</p>
+
+<label for="newPersian">نام شما</label>
+<input id="newPersian" placeholder="مثال: ژاله">
+
+<label for="newLatin">Your name in English</label>
+<input id="newLatin" placeholder="example: Jaleh" dir="ltr" lang="en">
+
+<label for="kind">نوع</label>
+<select id="kind">
+<option value="first">نام</option>
+<option value="last">نام خانوادگی</option>
+</select>
+
+<label for="note">توضیحات (اختیاری)</label>
+<textarea id="note" rows="3" placeholder="در صورت نیاز توضیحات خود را وارد کنید"></textarea>
+
+<button id="addBtn">ثبت پیشنهاد</button>
+<div id="addStatus" class="status" aria-live="polite"></div>
+</section>
+
+<section class="card">
+<h2>اطلاعات ثبت‌شده در این مرورگر</h2>
+<div id="stats" class="small"></div>
+<button class="secondary" id="exportBtn">دریافت خروجی اطلاعات</button>
+<button class="secondary" id="resetBtn">بازنشانی داده‌های آزمایشی</button>
+</section>
+<footer>نام‌نگار | NameNegar — نسخه آزمایشی؛ اتصال به پایگاه داده و سرویس Mondonomo هنوز فعال نشده است. املای پیشنهادی جایگزین املای ثبت‌شده در مدارک رسمی نیست.</footer>
+</div>
+<script>
+const KEY='nameNegarPrototype_v1';
+const seed={
+ 'رنجبر':[{latin:'Ranjbar',score:0,source:'seed'},{latin:'Ranjber',score:0,source:'seed'},{latin:'Ranjbaar',score:0,source:'seed'}],
+ 'ژاله':[{latin:'Jaleh',score:0,source:'seed'},{latin:'Zhaleh',score:0,source:'seed'},{latin:'Zhale',score:0,source:'seed'}],
+ 'زهرا':[{latin:'Zahra',score:0,source:'seed'},{latin:'Zahraa',score:0,source:'seed'},{latin:'Zohra',score:0,source:'seed'}],
+ 'محمد':[{latin:'Mohammad',score:0,source:'seed'},{latin:'Mohamad',score:0,source:'seed'},{latin:'Muhammad',score:0,source:'seed'}]
+};
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{names:seed,submissions:[],votes:{}}}catch{return {names:seed,submissions:[],votes:{}}}}
+let db=load();
+function save(){localStorage.setItem(KEY,JSON.stringify(db));renderStats()}
+function norm(s){return s.trim().replace(/\s+/g,' ')}
+function transliterate(s){
+ const map={'ا':'a','آ':'â','ب':'b','پ':'p','ت':'t','ث':'s','ج':'j','چ':'ch','ح':'h','خ':'kh','د':'d','ذ':'z','ر':'r','ز':'z','ژ':'zh','س':'s','ش':'sh','ص':'s','ض':'z','ط':'t','ظ':'z','ع':'','غ':'gh','ق':'gh','ک':'k','گ':'g','ل':'l','م':'m','ن':'n','و':'u','ه':'h','ی':'i','ء':'','ئ':'y','ؤ':'o','ة':'h','َ':'a','ِ':'e','ُ':'o','ّ':'','ْ':'','ً':'an','ٍ':'en','ٌ':'on','ي':'i','ك':'k'};
+ let out='';for(const ch of s){if(ch==='ّ'){out+=out.slice(-1);continue}out+=map[ch]??ch}
+ return out.replace(/\s+/g,' ').replace(/(^|\s)\S/g,x=>x.toUpperCase());
+}
+function getCandidates(name){
+ const exact=db.names[name]||[];
+ let generated=transliterate(name);
+ let list=[...exact];
+ if(generated&&!list.some(x=>x.latin.toLowerCase()===generated.toLowerCase()))list.push({latin:generated,score:0,source:'rule'});
+ if(!list.length)list=[{latin:generated,score:0,source:'rule'}];
+ return list.sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,3);
+}
+document.getElementById('convertBtn').onclick=()=>{
+ const name=norm(document.getElementById('fullName').value);
+ const box=document.getElementById('results'),status=document.getElementById('convertStatus');
+ box.innerHTML='';status.textContent='';
+ if(!name){status.textContent='لطفاً نام و نام خانوادگی را وارد کنید.';return}
+ const parts=name.split(' ');
+ const options=parts.length>1?parts.map(part=>getCandidates(part)): [getCandidates(name)];
+ const combos=[['','','']];
+ // Compose first-ranked full-name candidate for now; if individual components have alternatives, display up to 3 combinations.
+ const rows=[];
+ for(let i=0;i<3;i++){
+  const words=options.map(arr=>(arr[i]||arr[0]||{latin:''}).latin);
+  rows.push({latin:words.join(' ')});
+ }
+ const unique=[...new Map(rows.map(x=>[x.latin.toLowerCase(),x])).values()].slice(0,3);
+ unique.forEach((item,i)=>{
+  const row=document.createElement('div');row.className='option';
+  const tag=document.createElement('span');tag.className='tag';tag.textContent=['پیشنهاد اول','پیشنهاد دوم','پیشنهاد سوم'][i];
+  const latin=document.createElement('strong');latin.textContent=item.latin;
+  const btn=document.createElement('button');btn.textContent='انتخاب این املا';btn.onclick=()=>{
+   const key=name+'|'+item.latin;db.votes[key]=(db.votes[key]||0)+1;
+   if(!db.names[name])db.names[name]=[];
+   let found=db.names[name].find(x=>x.latin.toLowerCase()===item.latin.toLowerCase());
+   if(!found)db.names[name].push({latin:item.latin,score:0,source:'selected'});
+   found=db.names[name].find(x=>x.latin.toLowerCase()===item.latin.toLowerCase());found.score=(found.score||0)+1;
+   save();status.textContent='انتخاب شما در این مرورگر ذخیره شد. سپاس از مشارکت شما!';
+  };
+  row.append(tag,latin,btn);box.append(row);
+ });
+ status.textContent='یکی از پیشنهادها را انتخاب کنید.';
+};
+document.getElementById('addBtn').onclick=()=>{
+ const fa=norm(document.getElementById('newPersian').value),en=norm(document.getElementById('newLatin').value);
+ const status=document.getElementById('addStatus');
+ if(!fa||!en){status.textContent='لطفاً نام فارسی و نوشتار انگلیسی را وارد کنید.';return}
+ if(!db.names[fa])db.names[fa]=[];
+ if(db.names[fa].some(x=>x.latin.toLowerCase()===en.toLowerCase())){status.textContent='این املا قبلاً ثبت شده است.';return}
+ const entry={latin:en,score:0,source:'user-submission',kind:document.getElementById('kind').value,note:document.getElementById('note').value,approved:false};
+ db.names[fa].push(entry);db.submissions.push({fa,...entry,createdAt:new Date().toISOString()});
+ save();status.textContent='پیشنهاد شما در این مرورگر ثبت شد.';
+ ['newPersian','newLatin','note'].forEach(id=>document.getElementById(id).value='');
+};
+function renderStats(){document.getElementById('stats').textContent=`${Object.keys(db.names).length} مدخل نام | ${db.submissions.length} پیشنهاد ثبت‌شده | ${Object.values(db.votes).reduce((a,b)=>a+b,0)} انتخاب`;}
+document.getElementById('exportBtn').onclick=()=>{
+ const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='namenegar-data.json';a.click();URL.revokeObjectURL(a.href);
+};
+document.getElementById('resetBtn').onclick=()=>{if(confirm('همه داده‌های آزمایشی این مرورگر پاک شود؟')){localStorage.removeItem(KEY);db={names:seed,submissions:[],votes:{}};save();document.getElementById('results').innerHTML='';document.getElementById('convertStatus').textContent='داده‌های آزمایشی بازنشانی شدند.'}};
+renderStats();
+</script>
+</body></html>
